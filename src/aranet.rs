@@ -19,7 +19,7 @@ const BLUETOOTH_SOFTWARE_REVISION_CHARACTERISTIC: Uuid =
 const BLUETOOTH_MANUFACTURER_NAME_CHARACTERISTIC: Uuid =
     uuid!("00002a29-0000-1000-8000-00805f9b34fb");
 
-#[derive(Default, Debug, serde::Serialize)]
+#[derive(Debug, serde::Serialize)]
 pub struct Device {
     name: String,
     address: BDAddr,
@@ -27,13 +27,36 @@ pub struct Device {
     info: Info,
 }
 
-#[derive(Default, Debug, serde::Serialize)]
+#[derive(Debug, serde::Serialize)]
+pub enum Status {
+    GREEN = 1,
+    AMBER = 2,
+    RED = 3,
+}
+
+impl std::convert::TryFrom<u8> for Status {
+    type Error = ();
+
+    fn try_from(value: u8) -> Result<Self, Self::Error> {
+        match value {
+            status if status == Status::GREEN as u8 => Ok(Status::GREEN),
+            status if status == Status::AMBER as u8 => Ok(Status::AMBER),
+            status if status == Status::RED as u8 => Ok(Status::RED),
+            _ => Err(()),
+        }
+    }
+}
+
+#[derive(Debug, serde::Serialize)]
 pub struct Data {
     co2: u16,
     temperature: f32,
     pressure: f32,
     humidity: u8,
     battery: u8,
+    status: Status,
+    interval: time::Duration,
+    ago: time::Duration,
 }
 
 #[derive(Default, Debug, serde::Serialize)]
@@ -134,6 +157,11 @@ async fn get_data(device: &Peripheral) -> anyhow::Result<Data> {
         pressure: u16::from_le_bytes(res[4..6].try_into().unwrap()) as f32 / 10.0,
         humidity: u8::from_le(res[6]),
         battery: u8::from_le(res[7]),
+        status: u8::from_le(res[8]).try_into().unwrap(),
+        interval: time::Duration::from_secs(
+            u16::from_le_bytes(res[9..11].try_into().unwrap()) as u64
+        ),
+        ago: time::Duration::from_secs(u16::from_le_bytes(res[11..13].try_into().unwrap()) as u64),
     })
 }
 
