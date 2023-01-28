@@ -15,10 +15,10 @@ struct Cli {
 enum Commands {
     /// Get aranet devices and their data
     Get {
-        /// How long to wait for devices to be detected, in seconds
+        /// How long to wait for devices to be detected, in seconds.
         #[clap(short, long, default_value = "10")]
         timeout: u64,
-        /// How many devices to look for
+        /// How many devices to look for.
         #[clap(short, long)]
         max_devices: Option<usize>,
     },

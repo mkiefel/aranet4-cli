@@ -46,23 +46,26 @@ pub struct Info {
     manufacturer_name: Option<String>,
 }
 
+/// Scans for all Aranet4 devices for a given `timeout`.
+///
+/// # Arguments
+///
+/// * `max_devices` - Optional maximum number of devices to wait for before quitting early.
+/// * `timeout` - Maximum time to wait for devices to be discovered before returning.
 pub async fn get_devices(
     max_devices: Option<usize>,
     timeout: time::Duration,
 ) -> anyhow::Result<Vec<Device>> {
     let manager = Manager::new().await.unwrap();
 
-    // get the first bluetooth adapter
+    // Get the first bluetooth adapter.
     let adapters = manager.adapters().await?;
     let central = adapters.into_iter().next().unwrap();
 
     let scan_filter = ScanFilter {
         services: vec![ARANET4_SERVICE],
     };
-    // start scanning for devices
     central.start_scan(scan_filter).await?;
-
-    // Based on https://github.com/deviceplug/btleplug/blob/21947d6f6e23466b6d06e523b1ffa48bb5a227b3/examples/event_driven_discovery.rs
     let mut events = central.events().await?;
 
     let mut devices = Vec::new();
@@ -95,8 +98,6 @@ pub async fn get_devices(
 
 async fn get_device(aranet_device: &Peripheral) -> anyhow::Result<Device> {
     aranet_device.connect().await?;
-
-    // discover services and characteristics
     aranet_device.discover_services().await?;
 
     Ok(Device {
