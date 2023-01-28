@@ -21,13 +21,13 @@ const BLUETOOTH_MANUFACTURER_NAME_CHARACTERISTIC: Uuid =
 
 #[derive(Debug, serde::Serialize)]
 pub struct Device {
-    name: String,
-    address: BDAddr,
-    data: Data,
-    info: Info,
+    pub name: String,
+    pub address: BDAddr,
+    pub data: Data,
+    pub info: Info,
 }
 
-#[derive(Debug, serde::Serialize)]
+#[derive(PartialEq, Debug, serde::Serialize)]
 pub enum Status {
     GREEN = 1,
     AMBER = 2,
@@ -49,24 +49,24 @@ impl std::convert::TryFrom<u8> for Status {
 
 #[derive(Debug, serde::Serialize)]
 pub struct Data {
-    co2: u16,
-    temperature: f32,
-    pressure: f32,
-    humidity: u8,
-    battery: u8,
-    status: Status,
-    interval: time::Duration,
-    ago: time::Duration,
+    pub co2: u16,
+    pub temperature: f32,
+    pub pressure: f32,
+    pub humidity: u8,
+    pub battery: u8,
+    pub status: Status,
+    pub interval: time::Duration,
+    pub ago: time::Duration,
 }
 
 #[derive(Default, Debug, serde::Serialize)]
 pub struct Info {
-    model_number: Option<String>,
-    serial_number: Option<String>,
-    firmware_revision: Option<String>,
-    hardware_revision: Option<String>,
-    software_revision: Option<String>,
-    manufacturer_name: Option<String>,
+    pub model_number: Option<String>,
+    pub serial_number: Option<String>,
+    pub firmware_revision: Option<String>,
+    pub hardware_revision: Option<String>,
+    pub software_revision: Option<String>,
+    pub manufacturer_name: Option<String>,
 }
 
 /// Scans for all Aranet4 devices for a given `timeout`.

@@ -1,4 +1,3 @@
-mod aranet;
 use clap::{Parser, Subcommand};
 use serde_json::json;
 use std::time;
@@ -34,7 +33,7 @@ async fn main() -> Result<(), anyhow::Error> {
             max_devices,
         }) => {
             let devices =
-                aranet::get_devices(*max_devices, time::Duration::from_secs(*timeout)).await?;
+                aranet4_cli::get_devices(*max_devices, time::Duration::from_secs(*timeout)).await?;
             println!("{}", json!(devices));
         }
         None => {}
