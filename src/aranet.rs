@@ -29,11 +29,11 @@ pub struct Device {
 
 #[derive(Default, Debug, serde::Serialize)]
 pub struct Data {
-    co2: u32,
+    co2: u16,
     temperature: f32,
     pressure: f32,
-    humidity: f32,
-    battery: u32,
+    humidity: u8,
+    battery: u8,
 }
 
 #[derive(Default, Debug, serde::Serialize)]
@@ -129,11 +129,11 @@ async fn get_data(device: &Peripheral) -> anyhow::Result<Data> {
 
     // Adapted from https://github.com/SAF-Tehnika-Developer/com.aranet4/blob/54ec587f49cdece2236528edf0b871c259eb220c/app.js#L175-L182
     Ok(Data {
-        co2: res[0] as u32 + (res[1] as u32) * 256,
-        temperature: (res[2] as f32 + (res[3] as f32) * 256.0) / 20.0,
-        pressure: (res[4] as f32 + (res[5] as f32) * 256.0) / 10.0,
-        humidity: res[6] as f32,
-        battery: res[7] as u32,
+        co2: u16::from_le_bytes(res[0..2].try_into().unwrap()),
+        temperature: u16::from_le_bytes(res[2..4].try_into().unwrap()) as f32 / 20.0,
+        pressure: u16::from_le_bytes(res[4..6].try_into().unwrap()) as f32 / 10.0,
+        humidity: u8::from_le(res[6]),
+        battery: u8::from_le(res[7]),
     })
 }
 
